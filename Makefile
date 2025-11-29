@@ -20,6 +20,9 @@ install_fonts:
 	mpremote cp micropython/freesans20.py :freesans20.py
 	mpremote cp micropython/writer.py :writer.py
 
+run_stat:
+	mpremote connect $(PORT) run util/stat.py
+
 run_scandev:
 	mpremote connect $(PORT) run util/scandev.py
 

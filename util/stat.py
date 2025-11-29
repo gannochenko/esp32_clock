@@ -1,0 +1,1 @@
+import gc; gc.collect(); print(f"RAM: {gc.mem_free()/1024:.1f}KB free, {gc.mem_alloc()/1024:.1f}KB used")

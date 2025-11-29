@@ -60,7 +60,7 @@ def draw_number(display, number, x, y, digit_width=12, digit_height=20, spacing=
     for char in str(number):
         draw_digit(display, char, current_x, y, digit_width, digit_height)
         if char == ':':
-            current_x += digit_width//2 + spacing  # Colon is narrower
+            current_x += digit_width + spacing  # Colon is narrower
         else:
             current_x += digit_width + spacing
 
@@ -72,7 +72,7 @@ if devices:
     display = ssd1306.SSD1306_I2C(128, 64, i2c)
 
     display.fill(0)  # Clear screen
-    draw_number(display, '23:59', 10, 20, digit_width=18, digit_height=30)
+    draw_number(display, '23:59', 12, 20, digit_width=18, digit_height=30, spacing=4)
 
     display.contrast(10)  # Adjust contrast (0-255)
 
