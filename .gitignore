@@ -1,0 +1,21 @@
+# MicroPython
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local configuration
+src/config/local_settings.py
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

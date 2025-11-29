@@ -1,0 +1,8 @@
+# MicroPython packages required for ESP32 Clock
+# Install using: mpremote mip install <package>
+
+# SSD1306 OLED Display Driver
+micropython-ssd1306
+
+# DS3231 RTC Module (if using external RTC)
+# micropython-ds3231
