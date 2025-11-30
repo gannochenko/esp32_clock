@@ -1,6 +1,6 @@
-from writer import Writer
-import font6
-from constants import DISPLAY_CONTRAST, TEMP_ICON, CLOCK_ICON, LOCATION_ICON
+from lib.writer import Writer
+import lib.font6 as font6
+from lib.constants import DISPLAY_CONTRAST, TEMP_ICON, CLOCK_ICON, LOCATION_ICON
 
 def draw_icon_pixel_by_pixel(display, icon_data, x, y, width=16, height=16):
     """Draw icon pixel-by-pixel from MONO_HLSB format data"""
@@ -87,12 +87,12 @@ class Stat_Display_Painter:
     def __init__(self, display):
         self.display = display
 
-    def draw(self):
+    def draw(self, events, messages, location):
         offset = 5
         v_grid_step = 20
         self.display.fill(0)
         self.display.contrast(DISPLAY_CONTRAST)
-        draw_icon_text(self.display, "3 events", TEMP_ICON, offset, offset)
-        draw_icon_text(self.display, "10 messages", CLOCK_ICON, offset + v_grid_step, offset)
-        draw_icon_text(self.display, "Spandau", LOCATION_ICON, offset + v_grid_step * 2, offset)
+        draw_icon_text(self.display, f"{events} events", TEMP_ICON, offset, offset)
+        draw_icon_text(self.display, f"{messages} messages", CLOCK_ICON, offset + v_grid_step, offset)
+        draw_icon_text(self.display, location, LOCATION_ICON, offset + v_grid_step * 2, offset)
         self.display.show()
