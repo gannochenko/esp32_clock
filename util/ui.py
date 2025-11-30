@@ -1,16 +1,37 @@
 from machine import Pin, I2C
 import ssd1306
 from writer import Writer
+import time
+import freesans20
+import framebuf
+
+# Temperature icon (16x16 thermometer)
+TEMP_ICON = bytearray([
+    0x00, 0x00, 0xC0, 0x01, 0x20, 0x02, 0x20, 0x02,
+    0x20, 0x02, 0x20, 0x02, 0x20, 0x02, 0x20, 0x02,
+    0xE0, 0x03, 0x50, 0x05, 0x50, 0x05, 0x50, 0x05,
+    0xE0, 0x03, 0xC0, 0x01, 0x00, 0x00, 0x00, 0x00
+])
+
+# Clock icon (16x16)
+CLOCK_ICON = bytearray([
+    0x00, 0x00, 0xF0, 0x07, 0x08, 0x08, 0x04, 0x10,
+    0x04, 0x10, 0x82, 0x20, 0x82, 0x20, 0x02, 0x20,
+    0x02, 0x20, 0x04, 0x10, 0x04, 0x10, 0x08, 0x08,
+    0xF0, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+])
+
+LOCATION_ICON = bytearray([
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0x07, 0x60, 0x06, 0x30, 0x0C, 
+    0x30, 0x0C, 0x20, 0x04, 0xE0, 0x07, 0xC0, 0x07, 0xC0, 0x03, 0x80, 0x01, 
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+])
+
+temp_fb = framebuf.FrameBuffer(TEMP_ICON, 16, 16, framebuf.MONO_HLSB)
+clock_fb = framebuf.FrameBuffer(CLOCK_ICON, 16, 16, framebuf.MONO_HLSB)
+loc_fb = framebuf.FrameBuffer(LOCATION_ICON, 16, 16, framebuf.MONO_HLSB)
 
 def draw_digit(display, digit, x, y, width=12, height=20, thickness=3):
-    """
-    Draw a large digit using rectangles
-    digit: character '0'-'9' or ':'
-    x, y: top-left position
-    width, height: size of digit
-    thickness: line thickness
-    """
-    
     # Segment positions (7-segment display style)
     # Top horizontal
     top = (x, y, width, thickness)
@@ -52,37 +73,45 @@ def draw_digit(display, digit, x, y, width=12, height=20, thickness=3):
             display.fill_rect(seg[0], seg[1], seg[2], seg[3], 1)
 
 def draw_number(display, number, x, y, digit_width=12, digit_height=20, spacing=2):
-    """
-    Draw a multi-digit number/time string
-    number: string like '20:00' or '1234'
-    """
     current_x = x
     for char in str(number):
         draw_digit(display, char, current_x, y, digit_width, digit_height)
-        if char == ':':
-            current_x += digit_width + spacing  # Colon is narrower
-        else:
-            current_x += digit_width + spacing
+        current_x += digit_width + spacing
+
+class Time_Display_Painter:
+    def __init__(self, display):
+        self.display = display
+
+    def draw(self, hour, minute):
+        self.display.fill(0)
+        self.display.contrast(10)
+        draw_number(self.display, f"{hour:02d}:{minute:02d}", 12, 20, digit_width=18, digit_height=30, spacing=4)
+        self.display.show()
+
+class Temp_Display_Painter:
+    def __init__(self, display):
+        self.display = display
+        self.writer = Writer(self.display, freesans20)
+
+    def draw(self, temp):
+        sign = " " if temp >= 0 else ""
+
+        self.display.fill(0)
+        self.display.contrast(10)
+        self.writer.set_textpos(self.display, 0, 0)  # top left
+        # self.writer.printstring(f"{sign}{temp} grad")
+        self.display.blit(loc_fb, 10, 10)    # Draw at position (0, 0)
+        # self.display.blit(clock_fb, 10, 34)
+        self.display.show()
 
 # SCL -> A5 -> GPIO12, SDA -> A4 -> GPIO11
-i2c = I2C(0, scl=Pin(12), sda=Pin(11))
+i2c_time_display = I2C(0, scl=Pin(12), sda=Pin(11))
+# SCL -> A1 -> GPIO2, SDA -> A2 -> GPIO3
+i2c_temp_display = I2C(1, scl=Pin(2), sda=Pin(3))
 
-devices = i2c.scan()
-if devices:
-    display = ssd1306.SSD1306_I2C(128, 64, i2c)
+time_display_painter = Time_Display_Painter(ssd1306.SSD1306_I2C(128, 64, i2c_time_display))
+temp_display_painter = Temp_Display_Painter(ssd1306.SSD1306_I2C(128, 64, i2c_temp_display))
 
-    display.fill(0)  # Clear screen
-    draw_number(display, '23:59', 12, 20, digit_width=18, digit_height=30, spacing=4)
-
-    display.contrast(10)  # Adjust contrast (0-255)
-
-    # wri = Writer(display, freesans50)
-
-    # # Write text
-    # Writer.set_textpos(display, 0, 0)  # Set position (row, col)
-    # wri.printstring('20:00')
-
-    # display.text('Hello, World!', 10, 10, 1)
-    display.show()
-else:
-    print("No device found - check connections!")
+current_time = time.localtime()
+time_display_painter.draw(current_time[3], current_time[4])
+temp_display_painter.draw(-99)
