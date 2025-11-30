@@ -1,39 +1,6 @@
-from machine import Pin, I2C
-import ssd1306
 from writer import Writer
-import time
-import font10
 import font6
-import freesans20
-import framebuf
-
-# Temperature icon (16x16 thermometer)
-TEMP_ICON = bytearray([
-    0x00, 0x00, 0xC0, 0x01, 0x20, 0x02, 0x20, 0x02,
-    0x20, 0x02, 0x20, 0x02, 0x20, 0x02, 0x20, 0x02,
-    0xE0, 0x03, 0x50, 0x05, 0x50, 0x05, 0x50, 0x05,
-    0xE0, 0x03, 0xC0, 0x01, 0x00, 0x00, 0x00, 0x00
-])
-
-# Clock icon (16x16)
-CLOCK_ICON = bytearray([
-    0x00, 0x00, 0xF0, 0x07, 0x08, 0x08, 0x04, 0x10,
-    0x04, 0x10, 0x82, 0x20, 0x82, 0x20, 0x02, 0x20,
-    0x02, 0x20, 0x04, 0x10, 0x04, 0x10, 0x08, 0x08,
-    0xF0, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-])
-
-LOCATION_ICON = bytearray([
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0x07, 0x60, 0x06, 0x30, 0x0C, 
-    0x30, 0x0C, 0x20, 0x04, 0xE0, 0x07, 0xC0, 0x07, 0xC0, 0x03, 0x80, 0x01, 
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-])
-
-DISPLAY_CONTRAST = 1
-
-temp_fb = framebuf.FrameBuffer(TEMP_ICON, 16, 16, framebuf.MONO_HLSB)
-clock_fb = framebuf.FrameBuffer(CLOCK_ICON, 16, 16, framebuf.MONO_HLSB)
-loc_fb = framebuf.FrameBuffer(LOCATION_ICON, 16, 16, framebuf.MONO_HLSB)
+from constants import DISPLAY_CONTRAST, TEMP_ICON, CLOCK_ICON, LOCATION_ICON
 
 def draw_icon_pixel_by_pixel(display, icon_data, x, y, width=16, height=16):
     """Draw icon pixel-by-pixel from MONO_HLSB format data"""
@@ -116,13 +83,11 @@ class Time_Display_Painter:
         draw_text(self.display, "30 Nov 2025", 50, 25)
         self.display.show()
 
-class Temp_Display_Painter:
+class Stat_Display_Painter:
     def __init__(self, display):
         self.display = display
 
-    def draw(self, temp):
-        sign = " " if temp >= 0 else ""
-
+    def draw(self):
         offset = 5
         v_grid_step = 20
         self.display.fill(0)
@@ -131,15 +96,3 @@ class Temp_Display_Painter:
         draw_icon_text(self.display, "10 messages", CLOCK_ICON, offset + v_grid_step, offset)
         draw_icon_text(self.display, "Spandau", LOCATION_ICON, offset + v_grid_step * 2, offset)
         self.display.show()
-
-# SCL -> A5 -> GPIO12, SDA -> A4 -> GPIO11
-i2c_time_display = I2C(0, scl=Pin(12), sda=Pin(11))
-# SCL -> A1 -> GPIO2, SDA -> A2 -> GPIO3
-i2c_temp_display = I2C(1, scl=Pin(2), sda=Pin(3))
-
-time_display_painter = Time_Display_Painter(ssd1306.SSD1306_I2C(128, 64, i2c_time_display))
-temp_display_painter = Temp_Display_Painter(ssd1306.SSD1306_I2C(128, 64, i2c_temp_display))
-
-current_time = time.localtime()
-time_display_painter.draw(current_time[3], current_time[4])
-temp_display_painter.draw(-99)
