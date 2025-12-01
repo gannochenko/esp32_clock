@@ -1,6 +1,10 @@
 from lib.writer import Writer
 import lib.font6 as font6
+import lib.freesans20 as sans20
 from lib.constants import DISPLAY_CONTRAST, TEMP_ICON, CLOCK_ICON, LOCATION_ICON
+from lib.state import ApplicationState
+import random
+from lib.error_codes import ErrorCodes
 
 def draw_icon_pixel_by_pixel(display, icon_data, x, y, width=16, height=16):
     """Draw icon pixel-by-pixel from MONO_HLSB format data"""
@@ -68,6 +72,11 @@ def draw_text(display, text, x, y):
     writer.set_textpos(display, x, y)
     writer.printstring(text)
 
+def draw_text_big(display, text, x, y):
+    writer = Writer(display, sans20)
+    writer.set_textpos(display, x, y)
+    writer.printstring(text)
+
 def draw_icon_text(display, text, icon, x, y):
     draw_icon_pixel_by_pixel(display, icon, y, x)
     draw_text(display, text, x + 1, y + 20)
@@ -76,23 +85,58 @@ class Time_Display_Painter:
     def __init__(self, display):
         self.display = display
 
-    def draw(self, hour, minute):
+    def draw(self, state: ApplicationState):
         self.display.fill(0)
         self.display.contrast(DISPLAY_CONTRAST)
-        draw_number(self.display, f"{hour:02d}:{minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
-        draw_text(self.display, "30 Nov 2025", 50, 25)
+
+        if state.errorCode > 0:
+            draw_text_big(self.display, "ERROR", 25, 30)
+        else:
+            draw_number(self.display, f"{state.hour:02d}:{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
+            draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 25)
+        
         self.display.show()
+
+    def get_month_name(self, month: int) -> str:
+        month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        return month_names[month - 1]
 
 class Stat_Display_Painter:
     def __init__(self, display):
         self.display = display
 
-    def draw(self, events, messages, location):
-        offset = 5
-        v_grid_step = 20
+    def draw(self, state: ApplicationState):
         self.display.fill(0)
         self.display.contrast(DISPLAY_CONTRAST)
-        draw_icon_text(self.display, f"{events} events", TEMP_ICON, offset, offset)
-        draw_icon_text(self.display, f"{messages} messages", CLOCK_ICON, offset + v_grid_step, offset)
-        draw_icon_text(self.display, location, LOCATION_ICON, offset + v_grid_step * 2, offset)
+
+        if state.errorCode > 0:
+            draw_text(self.display, ErrorCodes.get_error_message(state.errorCode), 10, 10)
+            draw_text_big(self.display, f"{state.errorCode}", 25, 40)
+            draw_text(self.display, state.errorExtra, 45, 10)
+        else:
+            offset = 5
+            v_grid_step = 20
+            draw_icon_text(self.display, f"{state.eventCount} events", TEMP_ICON, offset, offset)
+            draw_icon_text(self.display, f"{state.messageCount} messages", CLOCK_ICON, offset + v_grid_step, offset)
+            draw_icon_text(self.display, state.location, LOCATION_ICON, offset + v_grid_step * 2, offset)
+        
         self.display.show()
+
+class Temp_Display_Painter:
+    def __init__(self, display):
+        self.display = display
+
+    def draw(self, state: ApplicationState):
+        self.display.fill(0)
+        self.display.contrast(DISPLAY_CONTRAST)
+
+        if state.errorCode > 0:
+            draw_text_big(self.display, self.get_random_emoji(), 25, 45)
+        else:
+            draw_text_big(self.display, f"{state.temperature}°C", 25, 50)
+        
+        self.display.show()
+
+    def get_random_emoji(self) -> str:
+        emojis = [">_<", "   :(", "o_O"]
+        return emojis[random.randint(0, len(emojis) - 1)]
