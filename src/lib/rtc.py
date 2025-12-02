@@ -13,6 +13,7 @@ class RTC:
         year, month, day, weekday, hour, minute, second, _ = time
         state.hour = hour
         state.minute = minute
+        state.second = second
         state.day = day
         state.month = month
         state.year = year

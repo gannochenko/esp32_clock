@@ -10,6 +10,7 @@ class ApplicationState:
         self.timezoneOffset: int = 1 # default to Berlin in winter time
         self.hour: int = 0
         self.minute: int = 0
+        self.second: int = 0
         self.day: int = 0
         self.month: int = 0
         self.year: int = 2025
