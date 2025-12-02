@@ -3,7 +3,11 @@ class ApplicationState:
         self.wifiConnected: bool = False
         self.eventCount: int = 0
         self.messageCount: int = 0
-        self.location: str = "Spandau"
+        self.location: str = "Spandau" # this is temporary
+        self.locationCode: str = "Europe/Berlin"
+        self.latitude: float = 0
+        self.longitude: float = 0
+        self.timezoneOffset: int = 1 # default to Berlin in winter time
         self.hour: int = 0
         self.minute: int = 0
         self.day: int = 0
