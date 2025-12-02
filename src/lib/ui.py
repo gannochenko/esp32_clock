@@ -93,6 +93,7 @@ class Time_Display_Painter:
             draw_text_big(self.display, "ERROR", 25, 30)
         else:
             if state.wifiConnected:
+
                 draw_number(self.display, f"{state.hour:02d}:{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
                 draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 25)
             else:

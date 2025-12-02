@@ -7,6 +7,7 @@ from lib.error_codes import ErrorCodes
 from lib.wifi import Wifi
 from lib.settings import Settings
 from lib.ntp import NTP
+from lib.rtc import RTC
 
 class Application:
     def __init__(self, settings: Settings):
@@ -23,6 +24,7 @@ class Application:
 
         self.state = ApplicationState()
         self.wifi = Wifi(self.settings)
+        self.rtc = RTC()
         self.ntp = NTP()
 
     def render_ui(self):
@@ -31,8 +33,17 @@ class Application:
 
     def run(self):
         self.wifi.connect()
-        while True:
-            self.wifi.act(self.state)
-            self.ntp.act(self.state)
-            self.render_ui()
-            time.sleep(0.1)
+        try:
+            while True:
+                self.wifi.act(self.state) # trying to connect
+                self.rtc.act(self.state) # populating state with time from RTC
+                self.ntp.act(self.state) # syncing time from NTP once in 12 hours
+                self.render_ui() # rendering the current state
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            print("\nShutting down gracefully...")
+            # Cleanup: turn off display, disconnect WiFi, etc.
+            self.wifi.wlan.disconnect()
+            self.wifi.wlan.active(False)
+        finally:
+            print("Cleanup complete")
