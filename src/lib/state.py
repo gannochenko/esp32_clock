@@ -1,6 +1,6 @@
 class ApplicationState:
     def __init__(self):
-        self.connected: bool = False
+        self.wifiConnected: bool = False
         self.eventCount: int = 0
         self.messageCount: int = 0
         self.location: str = "Spandau"
@@ -12,6 +12,3 @@ class ApplicationState:
         self.temperature: int = 0
         self.errorCode: int = 0
         self.errorExtra: str = ""
-        self.ip: str = ""
-        self.rssi: int = 0
-        self.wifiStatus: int = 0

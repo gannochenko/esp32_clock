@@ -68,12 +68,12 @@ def draw_number(display, number, x, y, digit_width=12, digit_height=20, spacing=
         current_x += digit_width + spacing
 
 def draw_text(display, text, x, y):
-    writer = Writer(display, font6)
+    writer = Writer(display, font6, verbose=False)
     writer.set_textpos(display, x, y)
     writer.printstring(text)
 
 def draw_text_big(display, text, x, y):
-    writer = Writer(display, sans20)
+    writer = Writer(display, sans20, verbose=False)
     writer.set_textpos(display, x, y)
     writer.printstring(text)
 
@@ -92,9 +92,12 @@ class Time_Display_Painter:
         if state.errorCode > 0:
             draw_text_big(self.display, "ERROR", 25, 30)
         else:
-            draw_number(self.display, f"{state.hour:02d}:{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
-            draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 25)
-        
+            if state.wifiConnected:
+                draw_number(self.display, f"{state.hour:02d}:{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
+                draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 25)
+            else:
+                draw_text_big(self.display, "Connecting...", 25, 10)
+
         self.display.show()
 
     def get_month_name(self, month: int) -> str:
@@ -114,12 +117,15 @@ class Stat_Display_Painter:
             draw_text_big(self.display, f"{state.errorCode}", 25, 40)
             draw_text(self.display, state.errorExtra, 45, 10)
         else:
-            offset = 5
-            v_grid_step = 20
-            draw_icon_text(self.display, f"{state.eventCount} events", TEMP_ICON, offset, offset)
-            draw_icon_text(self.display, f"{state.messageCount} messages", CLOCK_ICON, offset + v_grid_step, offset)
-            draw_icon_text(self.display, state.location, LOCATION_ICON, offset + v_grid_step * 2, offset)
-        
+            if state.wifiConnected:
+                offset = 5
+                v_grid_step = 20
+                draw_icon_text(self.display, f"{state.eventCount} events", TEMP_ICON, offset, offset)
+                draw_icon_text(self.display, f"{state.messageCount} messages", CLOCK_ICON, offset + v_grid_step, offset)
+                draw_icon_text(self.display, state.location, LOCATION_ICON, offset + v_grid_step * 2, offset)
+            else:
+                draw_text_big(self.display, "Connecting...", 25, 10)
+
         self.display.show()
 
 class Temp_Display_Painter:

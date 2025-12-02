@@ -2,7 +2,7 @@ ls_dev:
 	ls /dev/tty* | grep modem
 
 # insert here what the "ls_dev" found:
-PORT = /dev/tty.usbmodem1101
+PORT = /dev/tty.usbmodem101
 
 erase_flash:
 	esptool.py --chip esp32s3 --port $(PORT) erase-flash

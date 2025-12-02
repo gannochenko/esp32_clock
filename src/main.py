@@ -1,6 +1,6 @@
 from lib.application import Application
-from secrets import WIFI_SSID, WIFI_PASSWORD
+from lib.settings import Settings
 
-app = Application()
-app.connect_wifi(WIFI_SSID, WIFI_PASSWORD)
+settings = Settings()
+app = Application(settings)
 app.run()
