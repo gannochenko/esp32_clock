@@ -47,3 +47,9 @@ mount:
 
 run:
 	mpremote mount ./src run src/main.py
+
+deploy:
+	mpremote cp -r src/* :
+
+ls:
+	mpremote ls

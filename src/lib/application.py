@@ -8,7 +8,7 @@ from lib.wifi import Wifi
 from lib.settings import Settings
 from lib.ntp import NTP
 from lib.rtc import RTC
-from src.lib.housekeeper import Housekeeper
+from lib.housekeeper import Housekeeper
 
 class Application:
     def __init__(self, settings: Settings):
