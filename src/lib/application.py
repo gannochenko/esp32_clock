@@ -8,6 +8,7 @@ from lib.wifi import Wifi
 from lib.settings import Settings
 from lib.ntp import NTP
 from lib.rtc import RTC
+from src.lib.housekeeper import Housekeeper
 
 class Application:
     def __init__(self, settings: Settings):
@@ -26,6 +27,7 @@ class Application:
         self.wifi = Wifi(self.settings)
         self.rtc = RTC()
         self.ntp = NTP()
+        self.housekeeper = Housekeeper()
 
     def render_ui(self):
         self.time_display_painter.draw(self.state)
@@ -39,6 +41,7 @@ class Application:
                 self.rtc.act(self.state) # populating state with time from RTC
                 self.ntp.act(self.state) # syncing time from NTP once in 12 hours
                 self.render_ui() # rendering the current state
+                self.housekeeper.act()
                 time.sleep(0.1)
         except KeyboardInterrupt:
             print("\nShutting down gracefully...")

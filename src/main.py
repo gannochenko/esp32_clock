@@ -1,6 +1,10 @@
 from lib.application import Application
 from lib.settings import Settings
 
-settings = Settings()
-app = Application(settings)
-app.run()
+def main():
+    settings = Settings()
+    app = Application(settings)
+    app.run()
+
+if __name__ == "__main__":
+    main()
