@@ -13,6 +13,7 @@ class Wifi:
         self.wlan.active(True)
         self.settings = settings
         self._connect_time = None
+        self.once = False
 
     def connect(self):
         self._connect_time = time.ticks_ms()
@@ -23,6 +24,10 @@ class Wifi:
 
     @throttle(1000)
     def act(self, state: ApplicationState):
+        if not self.once:
+            self.connect()
+            self.once = True
+
         if self.is_connected():
             state.wifiConnected = True
             self._connect_time = None  # Reset timeout tracking

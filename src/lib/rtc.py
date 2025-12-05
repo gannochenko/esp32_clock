@@ -1,4 +1,5 @@
 import machine
+import time
 from lib.state import ApplicationState
 
 class RTC:
@@ -9,11 +10,17 @@ class RTC:
         return self.rtc.datetime()
 
     def act(self, state: ApplicationState):
-        time = self.get_time()
-        year, month, day, weekday, hour, minute, second, _ = time
-        state.hour = hour
-        state.minute = minute
-        state.second = second
-        state.day = day
-        state.month = month
-        state.year = year
+        rtc_time = self.get_time()
+        year, month, day, weekday, hour, minute, second, _ = rtc_time
+
+        # Apply timezone offset (RTC stores UTC time from NTP)
+        # Convert to timestamp, add offset in seconds, convert back
+        timestamp = time.mktime((year, month, day, hour, minute, second, weekday, 0)) + state.timezoneOffset
+        adjusted_time = time.localtime(timestamp)
+
+        state.year = adjusted_time[0]
+        state.month = adjusted_time[1]
+        state.day = adjusted_time[2]
+        state.hour = adjusted_time[3]
+        state.minute = adjusted_time[4]
+        state.second = adjusted_time[5]

@@ -122,9 +122,12 @@ class Stat_Display_Painter:
             if state.wifiConnected:
                 offset = 5
                 v_grid_step = 20
+                tz_offset_hours = state.timezoneOffset / 3600
+                tz_sign = "+" if tz_offset_hours >= 0 else "-"
+
                 draw_icon_text(self.display, f"{state.eventCount} events", TEMP_ICON, offset, offset)
                 draw_icon_text(self.display, f"{state.messageCount} messages", CLOCK_ICON, offset + v_grid_step, offset)
-                draw_icon_text(self.display, state.location, LOCATION_ICON, offset + v_grid_step * 2, offset)
+                draw_icon_text(self.display, f"{state.location} U{tz_sign}{tz_offset_hours}", LOCATION_ICON, offset + v_grid_step * 2, offset)
             else:
                 draw_text_big(self.display, "Connecting...", 25, 10)
 
