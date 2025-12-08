@@ -35,7 +35,9 @@ run_ui:
 deploy:
 	mpremote cp -r src/* :
 
-updeploy:
+undeploy:
+	mpremote rm :main.py # prevent auto-run on reset
+	mpremote reset
 	$(MAKE) erase_flash
 	$(MAKE) flash_mp
 
