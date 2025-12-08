@@ -13,7 +13,7 @@ def render_ui():
     state.day = 31
     state.month = 12
     state.year = 2025
-    state.temperature = 20
+    state.temperature = -99
     state.errorCode = 0
     state.errorExtra = ""
     state.eventCount = 10

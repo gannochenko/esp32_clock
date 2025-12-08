@@ -1,7 +1,7 @@
 from lib.writer import Writer
 import lib.font6 as font6
 import lib.freesans20 as sans20
-from lib.constants import DISPLAY_CONTRAST, TEMP_ICON, CLOCK_ICON, LOCATION_ICON
+from lib.constants import DISPLAY_CONTRAST, TEMP_ICON, CLOCK_ICON, LOCATION_ICON, WIFI_ICON
 from lib.state import ApplicationState
 import random
 from lib.error_codes import ErrorCodes
@@ -20,7 +20,7 @@ def draw_icon_pixel_by_pixel(display, icon_data, x, y, width=16, height=16):
             if byte2 & (1 << bit):
                 display.pixel(x + 8 + bit, y + row, 1)
 
-def draw_digit(display, digit, x, y, width=12, height=20, thickness=3):
+def draw_glyph(display, glyph, x, y, width=12, height=20, thickness=3):
     # Segment positions (7-segment display style)
     # Top horizontal
     top = (x, y, width, thickness)
@@ -49,22 +49,25 @@ def draw_digit(display, digit, x, y, width=12, height=20, thickness=3):
         '7': [top, tr, br],
         '8': [top, tl, tr, mid, bl, br, bot],
         '9': [top, tl, tr, mid, br, bot],
+        '-': [mid],
+        'C': [top, tl, bl, bot],
+        '°': [top, tl, tr, mid],
         ':': None  # Special case
     }
     
-    if digit == ':':
+    if glyph == ':':
         # Draw two dots for colon
         dot_size = thickness
         display.fill_rect(x + width//2 - dot_size//2, y + height//3, dot_size, dot_size, 1)
         display.fill_rect(x + width//2 - dot_size//2, y + 2*height//3, dot_size, dot_size, 1)
-    elif digit in segments:
-        for seg in segments[digit]:
+    elif glyph in segments:
+        for seg in segments[glyph]:
             display.fill_rect(seg[0], seg[1], seg[2], seg[3], 1)
 
 def draw_number(display, number, x, y, digit_width=12, digit_height=20, spacing=2):
     current_x = x
     for char in str(number):
-        draw_digit(display, char, current_x, y, digit_width, digit_height)
+        draw_glyph(display, char, current_x, y, digit_width, digit_height)
         current_x += digit_width + spacing
 
 def draw_text(display, text, x, y):
@@ -138,7 +141,8 @@ class Temp_Display_Painter:
         if state.errorCode > 0:
             draw_text_big(self.display, self.get_random_emoji(), 25, 45)
         else:
-            draw_text_big(self.display, f"{state.temperature}°C", 25, 50)
+            draw_icon_pixel_by_pixel(self.display, WIFI_ICON, 30, 30)
+            draw_number(self.display, f"{state.temperature}°C", 10, 10, digit_width=12, digit_height=18, spacing=4)
         
         self.display.show()
 

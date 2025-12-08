@@ -20,6 +20,6 @@ class ApplicationState:
         self.year: int = 2025
         self.temperature: int = 0
 
-        # unused states
+        # fatal error related
         self.errorCode: int = 0
         self.errorExtra: str = ""

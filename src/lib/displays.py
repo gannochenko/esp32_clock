@@ -9,6 +9,6 @@ def get_displays():
     i2c_temp_display = I2C(1, scl=Pin(2), sda=Pin(3))
 
     time_display_painter = Time_Display_Painter(SSD1306_I2C(128, 64, i2c_time_display))
-    stat_display_painter = Stat_Display_Painter(SSD1306_I2C(128, 64, i2c_temp_display))
+    stat_display_painter = Temp_Display_Painter(SSD1306_I2C(128, 64, i2c_temp_display))
 
     return time_display_painter, stat_display_painter
