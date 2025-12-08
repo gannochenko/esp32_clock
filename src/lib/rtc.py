@@ -9,6 +9,7 @@ class RTC:
     def get_time(self):
         return self.rtc.datetime()
 
+    # it doesn't need wifi, can run independently
     def act(self, state: ApplicationState):
         rtc_time = self.get_time()
         year, month, day, weekday, hour, minute, second, _ = rtc_time

@@ -92,13 +92,10 @@ class Time_Display_Painter:
         if state.errorCode > 0:
             draw_text_big(self.display, "ERROR", 25, 30)
         else:
-            if state.wifiConnected:
-                # Show colon on even seconds, hide on odd seconds (like real digital clocks)
-                separator = ":" if state.second % 2 == 0 else " "
-                draw_number(self.display, f"{state.hour:02d}{separator}{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
-                draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 25)
-            else:
-                draw_text_big(self.display, "Connecting...", 25, 10)
+            # Show colon on even seconds, hide on odd seconds (like real digital clocks)
+            separator = ":" if state.second % 2 == 0 else " "
+            draw_number(self.display, f"{state.hour:02d}{separator}{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
+            draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 25)
 
         self.display.show()
 
@@ -119,17 +116,14 @@ class Stat_Display_Painter:
             draw_text_big(self.display, f"{state.errorCode}", 25, 40)
             draw_text(self.display, state.errorExtra, 45, 10)
         else:
-            if state.wifiConnected:
-                offset = 5
-                v_grid_step = 20
-                tz_offset_hours = state.timezoneOffset / 3600
-                tz_sign = "+" if tz_offset_hours >= 0 else "-"
+            offset = 5
+            v_grid_step = 20
+            tz_offset_hours = state.timezoneOffset / 3600
+            tz_sign = "+" if tz_offset_hours >= 0 else "-"
 
-                draw_icon_text(self.display, f"{state.eventCount} events", TEMP_ICON, offset, offset)
-                draw_icon_text(self.display, f"{state.messageCount} messages", CLOCK_ICON, offset + v_grid_step, offset)
-                draw_icon_text(self.display, f"{state.location} U{tz_sign}{tz_offset_hours}", LOCATION_ICON, offset + v_grid_step * 2, offset)
-            else:
-                draw_text_big(self.display, "Connecting...", 25, 10)
+            draw_icon_text(self.display, f"{state.eventCount} events", TEMP_ICON, offset, offset)
+            draw_icon_text(self.display, f"{state.messageCount} messages", CLOCK_ICON, offset + v_grid_step, offset)
+            draw_icon_text(self.display, f"{state.location} U{tz_sign}{tz_offset_hours}", LOCATION_ICON, offset + v_grid_step * 2, offset)
 
         self.display.show()
 

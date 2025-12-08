@@ -4,16 +4,13 @@ from lib.util import throttle
 
 class NTP:
     def __init__(self):
-        self.initialSyncDone = False
+        self.syncDone = False
 
+    # needs wifi to sync
     def act(self, state: ApplicationState):
         if state.wifiConnected:
-            if not self.initialSyncDone:
+            if not self.syncDone:
                 ntptime.settime()
-                self.initialSyncDone = True
-            else:
-                self.resync()
-
-    @throttle(1000 * 60 * 60 * 12) # 12 hours
-    def resync(self):
-        ntptime.settime()
+                self.syncDone = True
+        else:
+            self.syncDone = False # resync when the wifi is back

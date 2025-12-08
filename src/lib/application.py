@@ -28,11 +28,11 @@ class Application:
     def run(self):
         try:
             while True:
-                self.wifi.act(self.state) # trying to connect
-                self.rtc.act(self.state) # populating state with time from RTC
-                self.ntp.act(self.state) # syncing time from NTP once in 12 hours
-                self.location.act(self.state) # fetching timezone data at startup and daily
-                self.render_ui() # rendering the current state
+                self.wifi.act(self.state)
+                self.rtc.act(self.state)
+                self.ntp.act(self.state)
+                self.location.act(self.state)
+                self.render_ui()
                 self.housekeeper.act()
                 time.sleep(0.1)
         except KeyboardInterrupt:

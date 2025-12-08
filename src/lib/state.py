@@ -1,7 +1,10 @@
 class ApplicationState:
     def __init__(self):
+        # wifi state
         self.wifiConnected: bool = False
-        self.wifiIpAddress: str = ""
+        self.wifiError: bool = False
+
+        # other states
         self.eventCount: int = 0
         self.messageCount: int = 0
         self.location: str = "Spandau" # this is temporary
@@ -16,5 +19,7 @@ class ApplicationState:
         self.month: int = 0
         self.year: int = 2025
         self.temperature: int = 0
+
+        # unused states
         self.errorCode: int = 0
         self.errorExtra: str = ""
