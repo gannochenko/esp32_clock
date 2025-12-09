@@ -8,6 +8,8 @@ except ImportError:
 
 from lib.settings import Settings
 
+DASH0_ENDPOINT = "https://ingress.eu-west-1.aws.dash0.com:4318/v1/logs"
+
 class Logger:
     LEVEL_DEBUG = 0
     LEVEL_INFO = 1
@@ -70,6 +72,7 @@ class Logger:
         if attributes:
             print(f"  Attributes: {attributes}")
 
+        # Always send to Dash0
         log_entry = {
             "timestamp": timestamp_ns,
             "level": level,
@@ -134,7 +137,7 @@ class Logger:
             }
 
             response = requests.post(
-                "https://ingress.eu-west-1.aws.dash0.com/v1/logs",
+                DASH0_ENDPOINT,
                 data=json.dumps(resource_logs),
                 headers=headers
             )
