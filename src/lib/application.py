@@ -7,6 +7,7 @@ from lib.ntp import NTP
 from lib.rtc import RTC
 from lib.housekeeper import Housekeeper
 from lib.location import Location
+from lib.logger import Logger
 
 class Application:
     def __init__(self, settings: Settings):
@@ -15,11 +16,14 @@ class Application:
         self.time_display_painter, self.stat_display_painter = get_displays()
 
         self.state = ApplicationState()
-        self.wifi = Wifi(self.settings)
+        self.logger = Logger(self.settings, service_name="esp32_clock")
+        self.wifi = Wifi(self.settings, self.logger)
         self.rtc = RTC()
         self.ntp = NTP()
         self.location = Location()
         self.housekeeper = Housekeeper()
+
+        self.logger.info("Application initialized")
 
     def render_ui(self):
         self.time_display_painter.draw(self.state)
@@ -27,6 +31,7 @@ class Application:
 
     def run(self):
         try:
+            self.logger.info("Application started, entering main loop")
             while True:
                 self.wifi.act(self.state)
                 self.rtc.act(self.state)
@@ -36,9 +41,14 @@ class Application:
                 self.housekeeper.act()
                 time.sleep(0.1)
         except KeyboardInterrupt:
+            self.logger.info("Received shutdown signal")
             print("\nShutting down gracefully...")
             # Cleanup: turn off display, disconnect WiFi, etc.
             self.wifi.wlan.disconnect()
             self.wifi.wlan.active(False)
+        except Exception as e:
+            self.logger.error("Application error", error=str(e))
+            raise
         finally:
+            self.logger.info("Cleanup complete")
             print("Cleanup complete")
