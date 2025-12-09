@@ -5,11 +5,8 @@ from lib.settings import Settings
 from lib.util import throttle
 
 class Wifi:
-    # Connection cycle: every 15 minutes
     CONNECTION_CYCLE_MS = 15 * 60 * 1000  # 15 minutes
-    # Stay connected for 2 minutes
     CONNECTED_DURATION_MS = 10 * 1000  # 10 seconds
-    # Timeout if can't connect within 1 minute
     CONNECT_TIMEOUT_MS = 60 * 1000  # 1 minute
 
     # States

@@ -95,12 +95,18 @@ class Time_Display_Painter:
         if state.errorCode > 0:
             draw_text_big(self.display, "ERROR", 25, 30)
         else:
+            second_even = state.second % 2 == 0
+            render_wifi = state.wifiConnected or state.wifiError
+
+            date_offset = 0 if render_wifi else 10
+            
             # Show colon on even seconds, hide on odd seconds (like real digital clocks)
-            separator = ":" if state.second % 2 == 0 else " "
+            separator = ":" if second_even else " "
             draw_number(self.display, f"{state.hour:02d}{separator}{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
-            draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 12)
+            draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 14 + date_offset)
             if state.wifiConnected:
-                draw_icon_pixel_by_pixel(self.display, WIFI_ICON, 100, 46)
+                if second_even:
+                    draw_icon_pixel_by_pixel(self.display, WIFI_ICON, 100, 46)
             elif state.wifiError:
                 draw_icon_pixel_by_pixel(self.display, WIFI_ERROR_ICON, 100, 46)
 
