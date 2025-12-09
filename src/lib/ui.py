@@ -1,7 +1,7 @@
 from lib.writer import Writer
 import lib.font6 as font6
 import lib.freesans20 as sans20
-from lib.constants import DISPLAY_CONTRAST, TEMP_ICON, CLOCK_ICON, LOCATION_ICON, WIFI_ICON
+from lib.constants import DISPLAY_CONTRAST, EMAIL_ICON, CALENDAR_ICON, LOCATION_ICON, RAIN_ICON, SNOW_ICON, SUN_ICON, WIFI_ERROR_ICON, WIFI_ICON
 from lib.state import ApplicationState
 import random
 from lib.error_codes import ErrorCodes
@@ -98,7 +98,11 @@ class Time_Display_Painter:
             # Show colon on even seconds, hide on odd seconds (like real digital clocks)
             separator = ":" if state.second % 2 == 0 else " "
             draw_number(self.display, f"{state.hour:02d}{separator}{state.minute:02d}", 12, 10, digit_width=18, digit_height=30, spacing=4)
-            draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 25)
+            draw_text(self.display, f"{state.day:02d} {self.get_month_name(state.month)} {state.year}", 50, 12)
+            if state.wifiConnected:
+                draw_icon_pixel_by_pixel(self.display, WIFI_ICON, 100, 46)
+            elif state.wifiError:
+                draw_icon_pixel_by_pixel(self.display, WIFI_ERROR_ICON, 100, 46)
 
         self.display.show()
 
@@ -124,8 +128,8 @@ class Stat_Display_Painter:
             tz_offset_hours = state.timezoneOffset / 3600
             tz_sign = "+" if tz_offset_hours >= 0 else "-"
 
-            draw_icon_text(self.display, f"{state.eventCount} events", TEMP_ICON, offset, offset)
-            draw_icon_text(self.display, f"{state.messageCount} messages", CLOCK_ICON, offset + v_grid_step, offset)
+            draw_icon_text(self.display, f"{state.eventCount} events", CALENDAR_ICON, offset, offset)
+            draw_icon_text(self.display, f"{state.messageCount} messages", EMAIL_ICON, offset + v_grid_step, offset)
             draw_icon_text(self.display, f"{state.location} U{tz_sign}{tz_offset_hours}", LOCATION_ICON, offset + v_grid_step * 2, offset)
 
         self.display.show()
@@ -141,8 +145,15 @@ class Temp_Display_Painter:
         if state.errorCode > 0:
             draw_text_big(self.display, self.get_random_emoji(), 25, 45)
         else:
-            draw_icon_pixel_by_pixel(self.display, WIFI_ICON, 30, 30)
-            draw_number(self.display, f"{state.temperature}°C", 10, 10, digit_width=12, digit_height=18, spacing=4)
+            sign = " " if state.temperature >= 0 else "-"
+            temperature = abs(state.temperature)
+            draw_number(self.display, f"{sign}{temperature:02d}°C", 25, 10, digit_width=12, digit_height=18, spacing=4)
+
+            offset = 25
+            margin = 15
+            draw_icon_pixel_by_pixel(self.display, SUN_ICON, offset, 40)
+            draw_icon_pixel_by_pixel(self.display, RAIN_ICON, offset + margin + 16, 40)
+            draw_icon_pixel_by_pixel(self.display, SNOW_ICON, offset + (margin + 16) * 2, 40)
         
         self.display.show()
 

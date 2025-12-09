@@ -6,14 +6,15 @@ from lib.displays import get_displays
 # use this function to render the UI for debugging purposes, without any other logic
 def render_ui():
     state = ApplicationState()
-    state.wifiConnected = True
+    state.wifiConnected = False
+    state.wifiError = True
     state.hour = 23
     state.minute = 59
     state.second = 0
     state.day = 31
     state.month = 12
     state.year = 2025
-    state.temperature = -99
+    state.temperature = -2
     state.errorCode = 0
     state.errorExtra = ""
     state.eventCount = 10
