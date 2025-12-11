@@ -8,7 +8,7 @@ except ImportError:
 
 from lib.settings import Settings
 
-DASH0_ENDPOINT = "https://ingress.eu-west-1.aws.dash0.com:4318/v1/logs"
+DASH0_ENDPOINT = "https://esp32clock-dash0-relay.gannochenko-dev.workers.dev"
 
 class Logger:
     LEVEL_DEBUG = 0
@@ -23,13 +23,6 @@ class Logger:
         LEVEL_ERROR: "ERROR"
     }
 
-    # OTLP severity numbers (aligned with OpenTelemetry spec)
-    OTLP_SEVERITY = {
-        LEVEL_DEBUG: 5,   # DEBUG
-        LEVEL_INFO: 9,    # INFO
-        LEVEL_WARN: 13,   # WARN
-        LEVEL_ERROR: 17   # ERROR
-    }
 
     def __init__(self, settings: Settings, service_name: str = "esp32_clock"):
         self.settings = settings
@@ -106,66 +99,48 @@ class Logger:
             print(f"[Logger] Failed to flush queue: {e}")
 
     def _send_to_dash0(self, log_entries: list):
-        """Send logs to Dash0 via OTLP HTTP"""
+        """Send logs to Dash0 via relay"""
         try:
-            # Build OTLP JSON payload
-            resource_logs = {
-                "resourceLogs": [
-                    {
-                        "resource": {
-                            "attributes": [
-                                {"key": "service.name", "value": {"stringValue": self.service_name}}
-                            ]
-                        },
-                        "scopeLogs": [
-                            {
-                                "scope": {
-                                    "name": self.service_name
-                                },
-                                "logRecords": [
-                                    self._build_log_record(entry) for entry in log_entries
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
+            # Build relay-format JSON payload
+            logs = []
+            for entry in log_entries:
+                log = {
+                    "level": self.LEVEL_NAMES[entry["level"]].lower(),
+                    "service.name": self.service_name,
+                    "message": entry["message"],
+                    "attributes": entry["attributes"]
+                }
+                logs.append(log)
+
+            payload = json.dumps(logs)
 
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.settings.dash0_auth_token}"
+                "Authorization": f"Bearer {self.settings.dash0_auth_token}",
+                "Dash0-Dataset": self.service_name
             }
+
+            print(f"[Logger] Sending to {DASH0_ENDPOINT}")
 
             response = requests.post(
                 DASH0_ENDPOINT,
-                data=json.dumps(resource_logs),
+                data=payload,
                 headers=headers
             )
 
+            print(f"[Logger] Response status: {response.status_code}")
+
+            if hasattr(response, 'text'):
+                print(f"[Logger] Response body: {response.text}")
+
             if response.status_code >= 400:
                 print(f"[Logger] Dash0 error: {response.status_code}")
+            else:
+                print(f"[Logger] Successfully sent {len(log_entries)} logs to Dash0")
 
             response.close()
 
         except Exception as e:
             print(f"[Logger] Failed to send to Dash0: {e}")
-
-    def _build_log_record(self, log_entry: dict):
-        """Build OTLP log record"""
-        record = {
-            "timeUnixNano": str(log_entry["timestamp"]),
-            "severityNumber": self.OTLP_SEVERITY[log_entry["level"]],
-            "severityText": self.LEVEL_NAMES[log_entry["level"]],
-            "body": {
-                "stringValue": log_entry["message"]
-            }
-        }
-
-        # Add attributes if present
-        if log_entry["attributes"]:
-            record["attributes"] = [
-                {"key": k, "value": {"stringValue": str(v)}}
-                for k, v in log_entry["attributes"].items()
-            ]
-
-        return record
+            import traceback
+            traceback.print_exc()

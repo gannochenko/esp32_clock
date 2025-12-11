@@ -31,22 +31,19 @@ class Wifi:
         return self.wlan.isconnected()
 
     def _log(self, level: str, message: str, **attributes):
-        """Helper to log with fallback to print"""
         if self.logger:
             getattr(self.logger, level)(message, **attributes)
         else:
             print(f"Wifi: {message}")
 
     def _start_connection(self):
-        """Initiate wifi connection"""
         self.wlan.active(True)
         self.wlan.connect(self.settings.ssid, self.settings.password)
         self.connection_start_time = time.ticks_ms()
         self.state = self.STATE_CONNECTING
-        self._log("info", "Initiating wifi connection", ssid=self.settings.ssid)
+        self._log("info", "Starting new connection cycle", ssid=self.settings.ssid)
 
     def _disconnect(self):
-        """Disconnect from wifi"""
         self.wlan.disconnect()
         self.wlan.active(False)
         self.connected_time = None
@@ -64,7 +61,6 @@ class Wifi:
         if self.state == self.STATE_IDLE:
             # Check if it's time to start a new connection cycle
             if self.last_cycle_start is None or time.ticks_diff(now, self.last_cycle_start) >= self.CONNECTION_CYCLE_MS:
-                self._log("info", "Starting new connection cycle")
                 state.wifiError = False
                 self.last_cycle_start = now
                 self._start_connection()

@@ -1,0 +1,20 @@
+######
+# POST test relay
+POST https://esp32clock-dash0-relay.gannochenko-dev.workers.dev
+Content-Type: application/json
+Authorization: Bearer auth_xxx
+Dash0-Dataset: es32clock
+
+[
+    {
+        "level": "debug",
+        "service.name": "ingest-test",
+        "message": "Meh it works",
+        "attributes": {
+            "sensor": "DHT22",
+            "temperature": 22.5,
+            "humidity": 45.2,
+            "device_id": "esp32-clock-01"
+        }
+    }
+]
