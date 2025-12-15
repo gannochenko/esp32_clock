@@ -1,6 +1,7 @@
 import time
 from lib.displays import get_displays
 from lib.state import ApplicationState
+from lib.weather import Weather
 from lib.wifi import Wifi
 from lib.settings import Settings
 from lib.ntp import NTP
@@ -16,12 +17,13 @@ class Application:
         self.time_display_painter, self.stat_display_painter = get_displays()
 
         self.state = ApplicationState()
-        self.logger = Logger(self.settings, service_name="esp32_clock")
+        self.logger = Logger(self.settings)
         self.wifi = Wifi(self.settings, self.logger)
         self.rtc = RTC()
         self.ntp = NTP()
-        self.location = Location()
+        self.location = Location(self.logger)
         self.housekeeper = Housekeeper()
+        self.weather = Weather(self.settings, self.logger)
 
         self.logger.info("Application initialized")
 
@@ -37,6 +39,7 @@ class Application:
                 self.rtc.act(self.state)
                 self.ntp.act(self.state)
                 self.location.act(self.state)
+                self.weather.act(self.state)
                 self.render_ui()
                 self.housekeeper.act()
                 time.sleep(0.1)

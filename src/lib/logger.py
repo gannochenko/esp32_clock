@@ -24,9 +24,8 @@ class Logger:
     }
 
 
-    def __init__(self, settings: Settings, service_name: str = "esp32_clock"):
+    def __init__(self, settings: Settings):
         self.settings = settings
-        self.service_name = service_name
         self.log_queue = []
         self.max_queue_size = 50
         self.is_wifi_connected = False
@@ -106,7 +105,7 @@ class Logger:
             for entry in log_entries:
                 log = {
                     "level": self.LEVEL_NAMES[entry["level"]].lower(),
-                    "service.name": self.service_name,
+                    "service.name": "es32_clock",
                     "message": entry["message"],
                     "attributes": entry["attributes"]
                 }
@@ -117,7 +116,7 @@ class Logger:
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.settings.dash0_auth_token}",
-                "Dash0-Dataset": self.service_name
+                "Dash0-Dataset": "es32clock"
             }
 
             print(f"[Logger] Sending to {DASH0_ENDPOINT}")
