@@ -18,3 +18,8 @@ Dash0-Dataset: es32clock
         }
     }
 ]
+
+######
+# GET calendar events
+GET https://esp32clock-google-calendar-proxy.gannochenko-dev.workers.dev/calendar-events
+Content-Type: application/json
